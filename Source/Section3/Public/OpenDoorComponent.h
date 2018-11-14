@@ -25,6 +25,9 @@ protected:
 	// open door
 	void OpenDoor();
 
+	// close door
+	void CloseDoor();
+
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -38,6 +41,16 @@ protected:
 	UPROPERTY(EditAnywhere)
 		float OpenYaw = 70.0f;
 
+	// door close delay
+	UPROPERTY(EditAnywhere)
+		float DoorCloseDelay = 1.0f;
+
+	UPROPERTY(VisibleAnywhere)
+		float LastDoorOpenTime;
+
+	UPROPERTY(VisibleAnywhere)
+		bool bDoorOpened = false;
+
 	// the trigger volume that can launch the open door event
 	UPROPERTY(EditInstanceOnly)
 		ATriggerVolume* TriggerVolume;
@@ -46,4 +59,6 @@ protected:
 	// who can launch the open door event
 	UPROPERTY(VisibleAnywhere)
 		APawn* TargetPawn;
+
+
 };

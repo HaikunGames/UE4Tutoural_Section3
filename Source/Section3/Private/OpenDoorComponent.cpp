@@ -22,10 +22,7 @@ void UOpenDoorComponent::BeginPlay()
 
 	// 记录默认的rotator
 	AActor* Owner = GetOwner();
-	if (Owner)
-	{
-		DefaultRotator = Owner->GetTransform().Rotator();
-	}
+	DefaultRotator = Owner->GetTransform().Rotator();
 
 	// 获得玩家控制的pawn
 	if (GetWorld()->GetFirstPlayerController())
@@ -40,13 +37,19 @@ void UOpenDoorComponent::BeginPlay()
 void UOpenDoorComponent::OpenDoor()
 {
 	AActor* Owner = GetOwner();
-	if (Owner)
-	{
-		FRotator Rot = DefaultRotator;
-		// open the door by X degrees
-		Rot.Yaw += OpenYaw;
-		Owner->SetActorRotation(Rot);
-	}
+	FRotator Rot = DefaultRotator;
+	// open the door by X degrees
+	Rot.Yaw += OpenYaw;
+	Owner->SetActorRotation(Rot);
+	bDoorOpened = true;
+}
+
+void UOpenDoorComponent::CloseDoor()
+{
+	AActor* Owner = GetOwner();
+	FRotator Rot = DefaultRotator;
+	Owner->SetActorRotation(Rot);
+	bDoorOpened = false;
 }
 
 // Called every frame
@@ -61,7 +64,19 @@ void UOpenDoorComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 		if (TriggerVolume->IsOverlappingActor(TargetPawn))
 		{
 			OpenDoor();
+			LastDoorOpenTime = GetWorld()->GetTimeSeconds();
 		}
 	}
+
+	// Check if it is time to close
+	if (bDoorOpened)
+	{
+		if (GetWorld()->GetTimeSeconds() > LastDoorOpenTime + DoorCloseDelay)
+		{
+			CloseDoor();
+		}
+	}
+	
+
 }
 
