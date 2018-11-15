@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "PhysicsEngine/PhysicsHandleComponent.h"
+#include "Components/InputComponent.h"
 #include "Grabber.generated.h"
 
 
@@ -24,8 +26,18 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	// grab 
+	void Grab();
+	// release
+	void Release();
+
 private:
 	// how far ahead of the pawn can reach in cm
 	UPROPERTY(EditAnywhere)
 	float Reach = 100.0f;
+
+ 	UPhysicsHandleComponent* PhysicsHandle = nullptr;
+	
+	UPROPERTY(EditAnywhere)
+	UInputComponent* InputComponent = nullptr;
 };

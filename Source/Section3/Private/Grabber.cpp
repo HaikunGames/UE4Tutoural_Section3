@@ -3,6 +3,7 @@
 #include "Grabber.h"
 #include "GameFramework/Controller.h"
 #include "DrawDebugHelpers.h"
+#include "CollisionQueryParams.h"
 
 // Sets default values for this component's properties
 UGrabber::UGrabber()
@@ -21,7 +22,13 @@ void UGrabber::BeginPlay()
 	Super::BeginPlay();
 
 	// ...
-	
+	PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
+	InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
+	if (InputComponent) 
+	{
+		InputComponent->BindAction(TEXT("Grab"), IE_Pressed, this, &UGrabber::Grab);
+		InputComponent->BindAction(TEXT("Grab"), IE_Released, this, &UGrabber::Release);
+	}
 }
 
 
@@ -40,10 +47,46 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	// draw a read trace in the world to visualize
 	DrawDebugLine(GetWorld(), Location, LineTranceEnd,FColor(255,0,0),false, 0.0f, 0, 1.0f);
 
+}
+
+void UGrabber::Grab()
+{
+
+	UE_LOG(LogTemp, Warning, TEXT("Grab @ %.2f sec."), GetWorld()->GetTimeSeconds());
+
+	// get player viwe point
+	FVector Location;
+	FRotator Rotator;
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(Location, Rotator);
+
+	FVector LineTranceEnd = Location + Rotator.Vector() * Reach;
+
+	// draw a read trace in the world to visualize
+	DrawDebugLine(GetWorld(), Location, LineTranceEnd, FColor(255, 0, 0), false, 0.0f, 0, 1.0f);
+
 	// ray-cast out to reach distance
+	FHitResult HitResult;
+	FCollisionQueryParams QP;
+	QP.AddIgnoredActor(GetOwner());
+	QP.bTraceComplex = false;
+
+	GetWorld()->LineTraceSingleByChannel(
+		HitResult,
+		Location,
+		LineTranceEnd,
+		ECollisionChannel::ECC_PhysicsBody,
+		QP
+	);
 
 	// see what we hit
+	if (HitResult.GetActor())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Grab :%s. "), *HitResult.GetActor()->GetName());
+	}
+}
 
-	
+void UGrabber::Release()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Release @ %.2f sec."), GetWorld()->GetTimeSeconds());
 }
 
