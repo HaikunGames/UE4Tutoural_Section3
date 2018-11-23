@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "OpenDoorComponent.h"
+#include "Runtime/Engine/Classes/Components/PrimitiveComponent.h"
 
 // Sets default values for this component's properties
 UOpenDoorComponent::UOpenDoorComponent()
@@ -24,10 +25,13 @@ void UOpenDoorComponent::BeginPlay()
 	AActor* Owner = GetOwner();
 	DefaultRotator = Owner->GetTransform().Rotator();
 
-	// 获得玩家控制的pawn
-	if (GetWorld()->GetFirstPlayerController())
+	if (PressurePlate)
 	{
-		TargetPawn = GetWorld()->GetFirstPlayerController()->GetPawn();
+		UE_LOG(LogTemp, Warning, TEXT("Has Pressure Plate."));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No Pressure Plate."));
 	}
 	
 
@@ -52,6 +56,25 @@ void UOpenDoorComponent::CloseDoor()
 	bDoorOpened = false;
 }
 
+float UOpenDoorComponent::GetTotalMassOfActorsOnPlate()
+{
+	float TotalMass = 0.0f;
+	// find all the overlapping actors
+	TArray<AActor*> OverlappingActors;
+	PressurePlate->GetOverlappingActors(OverlappingActors);
+
+	// sum the mass of the actors.
+	for (const AActor* Iter : OverlappingActors)
+	{
+		if (Iter->FindComponentByClass<UPrimitiveComponent>())
+			TotalMass += Iter->FindComponentByClass<UPrimitiveComponent>()->GetMass();
+
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("%.2f KG in the Pressure Plate."), TotalMass);
+	return TotalMass;
+}
+
 // Called every frame
 void UOpenDoorComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
@@ -59,14 +82,16 @@ void UOpenDoorComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 
 	// trigger 事件
 	// 当目标Pawn与trigger发生重叠时，open door
-	if (TriggerVolume)
+	if (PressurePlate)
 	{
-		if (TriggerVolume->IsOverlappingActor(TargetPawn))
+		// if the total mass greater than X, open the door
+		if (GetTotalMassOfActorsOnPlate() > 50.0f) // TODO:: make a parameter
 		{
 			OpenDoor();
 			LastDoorOpenTime = GetWorld()->GetTimeSeconds();
 		}
 	}
+
 
 	// Check if it is time to close
 	if (bDoorOpened)

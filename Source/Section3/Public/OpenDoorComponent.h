@@ -28,6 +28,9 @@ protected:
 	// close door
 	void CloseDoor();
 
+	// return total mass in KG
+	float GetTotalMassOfActorsOnPlate();
+
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -53,12 +56,11 @@ protected:
 
 	// the trigger volume that can launch the open door event
 	UPROPERTY(EditInstanceOnly)
-		ATriggerVolume* TriggerVolume;
+		ATriggerVolume* PressurePlate;
 
 	// target Pawn
 	// who can launch the open door event
-	UPROPERTY(VisibleAnywhere)
-		APawn* TargetPawn;
+
 
 
 };

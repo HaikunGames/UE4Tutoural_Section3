@@ -22,6 +22,8 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+	void InputSetup();
+
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -31,10 +33,13 @@ public:
 	// release
 	void Release();
 
+	// get the end point of the line trance
+	FVector GetLineTranceEnd();
+
 private:
 	// how far ahead of the pawn can reach in cm
 	UPROPERTY(EditAnywhere)
-	float Reach = 100.0f;
+	float Reach = 200.0f;
 
  	UPhysicsHandleComponent* PhysicsHandle = nullptr;
 	

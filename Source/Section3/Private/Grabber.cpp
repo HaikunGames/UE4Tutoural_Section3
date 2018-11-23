@@ -23,29 +23,32 @@ void UGrabber::BeginPlay()
 
 	// ...
 	PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
+	InputSetup();
+}
+
+
+void UGrabber::InputSetup()
+{
 	InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
-	if (InputComponent) 
+	if (InputComponent)
 	{
 		InputComponent->BindAction(TEXT("Grab"), IE_Pressed, this, &UGrabber::Grab);
 		InputComponent->BindAction(TEXT("Grab"), IE_Released, this, &UGrabber::Release);
 	}
 }
 
-
 // Called every frame
 void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// get player viwe point
-	FVector Location;
-	FRotator Rotator;
-	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(Location, Rotator);
+	FVector LineTranceEnd = GetLineTranceEnd();
 
-	FVector LineTranceEnd = Location + Rotator.Vector() * Reach;
-
-	// draw a read trace in the world to visualize
-	DrawDebugLine(GetWorld(), Location, LineTranceEnd,FColor(255,0,0),false, 0.0f, 0, 1.0f);
+	// if grabbed sth. 
+	if (PhysicsHandle->GrabbedComponent)
+	{
+		PhysicsHandle->SetTargetLocation(LineTranceEnd);
+	}
 
 }
 
@@ -59,7 +62,7 @@ void UGrabber::Grab()
 	FRotator Rotator;
 	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(Location, Rotator);
 
-	FVector LineTranceEnd = Location + Rotator.Vector() * Reach;
+	FVector LineTranceEnd = GetLineTranceEnd();
 
 	// draw a read trace in the world to visualize
 	DrawDebugLine(GetWorld(), Location, LineTranceEnd, FColor(255, 0, 0), false, 0.0f, 0, 1.0f);
@@ -82,11 +85,32 @@ void UGrabber::Grab()
 	if (HitResult.GetActor())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Grab :%s. "), *HitResult.GetActor()->GetName());
+
+		// attach physics handle
+		PhysicsHandle->GrabComponent(
+			HitResult.GetComponent(),
+			NAME_None,
+			HitResult.GetActor()->GetActorLocation(),
+			true
+		);
 	}
+
+	
 }
 
 void UGrabber::Release()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Release @ %.2f sec."), GetWorld()->GetTimeSeconds());
+	PhysicsHandle->ReleaseComponent();
+}
+
+FVector UGrabber::GetLineTranceEnd()
+{
+	// get player viwe point
+	FVector Location;
+	FRotator Rotator;
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(Location, Rotator);
+
+	return Location + Rotator.Vector() * Reach;
 }
 
