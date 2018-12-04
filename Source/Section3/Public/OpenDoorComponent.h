@@ -54,6 +54,9 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 		bool bDoorOpened = false;
 
+	UPROPERTY(EditAnywhere)
+		float TotalMassForOpening = 50.0f;
+
 	// the trigger volume that can launch the open door event
 	UPROPERTY(EditInstanceOnly)
 		ATriggerVolume* PressurePlate;

@@ -85,7 +85,7 @@ void UOpenDoorComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 	if (PressurePlate)
 	{
 		// if the total mass greater than X, open the door
-		if (GetTotalMassOfActorsOnPlate() > 50.0f) // TODO:: make a parameter
+		if (GetTotalMassOfActorsOnPlate() >= TotalMassForOpening) // TODO:: make a parameter
 		{
 			OpenDoor();
 			LastDoorOpenTime = GetWorld()->GetTimeSeconds();
