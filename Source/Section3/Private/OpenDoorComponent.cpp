@@ -23,7 +23,6 @@ void UOpenDoorComponent::BeginPlay()
 
 	// ¼ÇÂ¼Ä¬ÈÏµÄrotator
 	AActor* Owner = GetOwner();
-	DefaultRotator = Owner->GetTransform().Rotator();
 
 	if (PressurePlate)
 	{
@@ -36,27 +35,6 @@ void UOpenDoorComponent::BeginPlay()
 	
 }
 
-// open door
-void UOpenDoorComponent::OpenDoor()
-{
-// 	AActor* Owner = GetOwner();
-// 	FRotator Rot = DefaultRotator;
-// 	// open the door by X degrees
-// 	Rot.Yaw += OpenYaw;
-// 	Owner->SetActorRotation(Rot);
-
-	OnOpenRequest.Broadcast();
-	bDoorOpened = true;
-}
-
-void UOpenDoorComponent::CloseDoor()
-{
-// 	AActor* Owner = GetOwner();
-// 	FRotator Rot = DefaultRotator;
-// 	Owner->SetActorRotation(Rot);
-	OnCloseRequest.Broadcast();
-	bDoorOpened = false;
-}
 
 float UOpenDoorComponent::GetTotalMassOfActorsOnPlate()
 {
@@ -93,18 +71,11 @@ void UOpenDoorComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 		// if the total mass greater than X, open the door
 		if (GetTotalMassOfActorsOnPlate() >= TotalMassForOpening) // TODO:: make a parameter
 		{
-			OpenDoor();
-			LastDoorOpenTime = GetWorld()->GetTimeSeconds();
+			OnOpenRequest.Broadcast();
 		}
-	}
-
-
-	// Check if it is time to close
-	if (bDoorOpened)
-	{
-		if (GetWorld()->GetTimeSeconds() > LastDoorOpenTime + DoorCloseDelay)
+		else
 		{
-			CloseDoor();
+			OnCloseRequest.Broadcast();
 		}
 	}
 }
