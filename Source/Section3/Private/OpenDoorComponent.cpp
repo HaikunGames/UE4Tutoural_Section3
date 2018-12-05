@@ -31,47 +31,53 @@ void UOpenDoorComponent::BeginPlay()
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("No Pressure Plate."));
+		UE_LOG(LogTemp, Error, TEXT("%s needs a pressure plate."), *(Owner->GetName()));
 	}
 	
-
 }
 
 // open door
 void UOpenDoorComponent::OpenDoor()
 {
-	AActor* Owner = GetOwner();
-	FRotator Rot = DefaultRotator;
-	// open the door by X degrees
-	Rot.Yaw += OpenYaw;
-	Owner->SetActorRotation(Rot);
+// 	AActor* Owner = GetOwner();
+// 	FRotator Rot = DefaultRotator;
+// 	// open the door by X degrees
+// 	Rot.Yaw += OpenYaw;
+// 	Owner->SetActorRotation(Rot);
+
+	OnOpenRequest.Broadcast();
 	bDoorOpened = true;
 }
 
 void UOpenDoorComponent::CloseDoor()
 {
-	AActor* Owner = GetOwner();
-	FRotator Rot = DefaultRotator;
-	Owner->SetActorRotation(Rot);
+// 	AActor* Owner = GetOwner();
+// 	FRotator Rot = DefaultRotator;
+// 	Owner->SetActorRotation(Rot);
+	OnCloseRequest.Broadcast();
 	bDoorOpened = false;
 }
 
 float UOpenDoorComponent::GetTotalMassOfActorsOnPlate()
 {
+
 	float TotalMass = 0.0f;
-	// find all the overlapping actors
-	TArray<AActor*> OverlappingActors;
-	PressurePlate->GetOverlappingActors(OverlappingActors);
 
-	// sum the mass of the actors.
-	for (const AActor* Iter : OverlappingActors)
-	{
-		if (Iter->FindComponentByClass<UPrimitiveComponent>())
-			TotalMass += Iter->FindComponentByClass<UPrimitiveComponent>()->GetMass();
+	if (PressurePlate) {
+		// find all the overlapping actors
+		TArray<AActor*> OverlappingActors;
+		PressurePlate->GetOverlappingActors(OverlappingActors);
 
+		// sum the mass of the actors.
+		for (const AActor* Iter : OverlappingActors)
+		{
+			if (Iter->FindComponentByClass<UPrimitiveComponent>())
+				TotalMass += Iter->FindComponentByClass<UPrimitiveComponent>()->GetMass();
+
+		}
+		// UE_LOG(LogTemp, Warning, TEXT("%.2f KG in the Pressure Plate."), TotalMass);
 	}
-
-	UE_LOG(LogTemp, Warning, TEXT("%.2f KG in the Pressure Plate."), TotalMass);
+	
 	return TotalMass;
 }
 
@@ -101,7 +107,5 @@ void UOpenDoorComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 			CloseDoor();
 		}
 	}
-	
-
 }
 

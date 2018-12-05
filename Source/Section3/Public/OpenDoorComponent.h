@@ -9,6 +9,8 @@
 #include "OpenDoorComponent.generated.h"
 
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnActionRequest);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SECTION3_API UOpenDoorComponent : public UActorComponent
 {
@@ -35,6 +37,12 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	UPROPERTY(BlueprintAssignable)
+		FOnActionRequest OnOpenRequest;
+
+	UPROPERTY(BlueprintAssignable)
+		FOnActionRequest OnCloseRequest;
+
 protected:
 	// default rotator
 	UPROPERTY(VisibleAnywhere)
@@ -59,7 +67,7 @@ protected:
 
 	// the trigger volume that can launch the open door event
 	UPROPERTY(EditInstanceOnly)
-		ATriggerVolume* PressurePlate;
+		ATriggerVolume* PressurePlate = nullptr;
 
 	// target Pawn
 	// who can launch the open door event

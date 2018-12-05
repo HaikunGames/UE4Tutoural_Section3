@@ -45,7 +45,7 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	FVector LineTranceEnd = GetLineTranceEnd();
 
 	// if grabbed sth. 
-	if (PhysicsHandle->GrabbedComponent)
+	if (PhysicsHandle && PhysicsHandle->GrabbedComponent)
 	{
 		PhysicsHandle->SetTargetLocation(LineTranceEnd);
 	}
@@ -87,21 +87,22 @@ void UGrabber::Grab()
 		UE_LOG(LogTemp, Warning, TEXT("Grab :%s. "), *HitResult.GetActor()->GetName());
 
 		// attach physics handle
-		PhysicsHandle->GrabComponent(
-			HitResult.GetComponent(),
-			NAME_None,
-			HitResult.GetActor()->GetActorLocation(),
-			true
-		);
+		if (PhysicsHandle) {
+			PhysicsHandle->GrabComponent(
+				HitResult.GetComponent(),
+				NAME_None,
+				HitResult.GetActor()->GetActorLocation(),
+				true
+			);
+		}
 	}
-
-	
 }
 
 void UGrabber::Release()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Release @ %.2f sec."), GetWorld()->GetTimeSeconds());
-	PhysicsHandle->ReleaseComponent();
+	if (PhysicsHandle)
+		PhysicsHandle->ReleaseComponent();
 }
 
 FVector UGrabber::GetLineTranceEnd()
