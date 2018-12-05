@@ -24,6 +24,12 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+	// open door
+	void OpenDoor();
+
+	// close door
+	void CloseDoor();
+
 	// return total mass in KG
 	float GetTotalMassOfActorsOnPlate();
 
@@ -38,7 +44,23 @@ public:
 		FOnActionRequest OnCloseRequest;
 
 protected:
+	// default rotator
+	UPROPERTY(VisibleAnywhere)
+		FRotator DefaultRotator;
 
+	// open the door on Yaw by X degrees
+	UPROPERTY(EditAnywhere)
+		float OpenYaw = 70.0f;
+
+	// door close delay
+	UPROPERTY(EditAnywhere)
+		float DoorCloseDelay = 1.0f;
+
+	UPROPERTY(VisibleAnywhere)
+		float LastDoorOpenTime;
+
+	UPROPERTY(VisibleAnywhere)
+		bool bDoorOpened = false;
 
 	UPROPERTY(EditAnywhere)
 		float TotalMassForOpening = 50.0f;
